@@ -1,27 +1,40 @@
-# Reflection (week 4)
+# רפלקציה – Weather Wardrobe (שבוע 4)
 
-> Fill in the parts marked ✍️ with your own experience. They need to be your honest answers.
+## 1. האם אפשר היה למנוע בעיות עם פרומפט ראשוני טוב יותר?
 
-## 1. Could a better initial prompt have avoided UX problems?
+כן. נתתי לסוכן את הבריף כמעט כמו שהוא, והאפליקציה עלתה כמעט מיד. הבעיות שהיו לא היו בקוד אלא בכל מה שהבריף לא אמר:
 
-✍️ Write what went wrong (if anything) and what you would add to the first prompt.
-Examples worth considering: specifying the error behaviour up front (city not found, no photos, missing key), loading state, and where the API key lives.
+- **מפתח ה-API של Unsplash.** הבריף אמר "השתמש ב-Unsplash" ולא הסביר איך משיגים מפתח. נתקעתי בהרשמה: אחרי שנרשמתי כמפתח נשלחתי לעדכון פרופיל ולא ראיתי את האפליקציה שלי, כי היא נמצאת בדף נפרד. הייתי מוסיף לפרומפט "הסבר לי צעד אחר צעד איך משיגים את המפתח".
+- **איפה לשמור את המפתח.** שמרתי אותו בטעות ב-`.env.example` במקום ב-`.env`. הקובץ הזה עולה ל-GitHub, אז המפתח היה נחשף. הסוכן תפס את זה לפני שהעליתי. אילו הפרומפט היה כולל "אל תכניס סודות לקבצים שעולים ל-git ובדוק את זה לפני כל commit", זה היה נמנע מראש.
+- **התנהגות בשגיאות.** לא ציינתי מה קורה כשהעיר לא קיימת או כשחסר מפתח. הסוכן החליט לבד על הודעות שגיאה ברורות. זה יצא טוב, אבל זו הייתה החלטה שלו ולא שלי.
 
-## 2. Can any message become a skill?
+## 2. האם הודעה כלשהי יכולה להפוך ל-skill?
 
-✍️ Candidates: "explore this API with curl/fetch and summarise the response shape before writing code", and "write docs/ARCHITECTURE, API_NOTES and DECISIONS for this project".
+- **"חקור את ה-API לפני שאתה כותב קוד"**: להריץ בקשה אמיתית, לסכם את מבנה התשובה ולשמור ב-`docs/API_NOTES.md`. זה חוזר בכל פרויקט שמשתמש ב-API.
+- **"תכתוב תיעוד לפרויקט"**: README, ארכיטקטורה, החלטות ומגבלות. המבנה זהה כמעט בכל פרויקט.
+- **"בדוק שאין סודות לפני העלאה ל-git"**: חיפוש מפתחות בקבצים שנכנסים ל-commit ובדיקה ש-`.env` ב-`.gitignore`.
 
-## 3. Subagents or hooks I'd want later
+## 3. סוכני משנה (subagents) או hooks שהייתי רוצה בהמשך
 
-✍️ Ideas: a hook that runs `npm test` after edits; a hook or check that blocks committing `.env`; a subagent that reviews docs against the code to catch drift.
+- **hook לפני commit** שחוסם העלאה אם יש מפתח או `.env` בקבצים שנוספו. זה בדיוק המקרה שכמעט קרה לי.
+- **hook שמריץ `npm test`** אחרי כל עריכה בקוד. בבדיקות שלי הייתה תקלה בפקודת ההרצה (`node --test test/` לא עבד, והתיקון היה `test/*.test.js`), ו-hook היה תופס את זה מיד.
+- **סוכן משנה לבדיקת תיעוד**, שמשווה את מה שכתוב ב-`docs/` למה שהקוד באמת עושה, כדי לתפוס פער ביניהם.
 
-## 4. Can I confidently talk about the project?
+## 4. האם אני יכול לדבר על הפרויקט בביטחון?
 
-Summary I can defend:
+**מה שאני יכול להסביר:**
+- **הארכיטקטורה:** הדפדפן שולח בקשה אחת לשרת (`/api/suggest`). השרת מוצא את קואורדינטות העיר ב-Open-Meteo, מביא את מזג האוויר הנוכחי, מחליט מה ללבוש, ומחפש 4 תמונות ב-Unsplash.
+- **למה יש שרת באמצע:** כדי שמפתח Unsplash לא יגיע לדפדפן, שם כל אחד יכול לראות אותו.
+- **למה כללים רגילים ולא מודל שפה:** התוצאה צפויה, חינמית ואפשר לכתוב עליה בדיקות. המחיר הוא שההמלצות פחות גמישות.
+- **למה "feels like":** הטמפרטורה שהאדם מרגיש (עם רוח) קובעת מה ללבוש יותר מהטמפרטורה בפועל.
 
-- **Architecture:** browser to one `/api/suggest` endpoint to Open-Meteo (geocode, forecast) and Unsplash, with pure outfit logic in between.
-- **Key decision:** a server proxy so the Unsplash key stays private.
-- **Trade-off:** rule-based suggestions instead of an LLM, which makes them testable and free but less nuanced.
-- **Weakest point:** photos match the query, not the exact listed items.
+**מה חלש:**
+- התמונות מגיעות מחיפוש, אז הן מתאימות לשאילתה אבל לא בהכרח לפריטים המדויקים ברשימה.
+- המערכת משתמשת רק במזג האוויר הנוכחי ולא בתחזית של כל היום.
 
-✍️ Add: which part you could *not* explain before reading the docs, and what that tells you.
+**התפקיד שלי בתהליך:** הגדרתי את המטרה ואת האילוצים (העיר, ההעדפה, 4 תמונות, שני ה-API ותיעוד), והסוכן כתב את רוב הקוד. אני הייתי זה שהחליט ואישר את הכיוון:
+- השגתי בעצמי את מפתח Unsplash ושמרתי אותו בפרויקט.
+- החלטתי לפרסם את הפרויקט כ-repo ציבורי, ואישרתי כל פעולה שיוצאת החוצה: יצירת ה-repo וההעלאה.
+- הרצתי את האפליקציה, ובדקתי בעצמי שהיא עובדת מקצה לקצה.
+
+את ההבנה הטכנית של הקוד קיבלתי דרך התיעוד והשאלות ששאלתי, ולא דרך כתיבה. לכן אני מכיר טוב יותר את הזרימה הכללית והבחירות המרכזיות מאשר את פרטי המימוש.
