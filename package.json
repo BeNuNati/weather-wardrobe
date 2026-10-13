@@ -1,0 +1,12 @@
+{
+  "name": "weather-wardrobe",
+  "version": "1.0.0",
+  "description": "Type a city and a style, get 4 outfit photos matched to the current weather.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test test/*.test.js"
+  },
+  "engines": { "node": ">=18" },
+  "license": "MIT"
+}

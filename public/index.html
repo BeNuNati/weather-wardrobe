@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Weather Wardrobe</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main>
+    <h1>Weather Wardrobe</h1>
+    <p class="tagline">Tell us where you are and your style. We'll tell you what to wear.</p>
+
+    <form id="form">
+      <label>City
+        <input id="city" name="city" placeholder="e.g. Tel Aviv" required autofocus>
+      </label>
+      <label>Clothing preference
+        <input id="style" name="style" placeholder="e.g. casual, sporty, elegant, streetwear" list="styles">
+        <datalist id="styles">
+          <option value="casual"><option value="sporty"><option value="elegant">
+          <option value="streetwear"><option value="business"><option value="minimalist">
+        </datalist>
+      </label>
+      <button id="submit" type="submit">What should I wear?</button>
+    </form>
+
+    <p id="status" role="status" aria-live="polite"></p>
+
+    <section id="result" hidden>
+      <h2 id="weather"></h2>
+      <p id="items"></p>
+      <div id="photos" class="photos"></div>
+      <p class="credit">Photos from <a href="https://unsplash.com/?utm_source=weather_wardrobe&utm_medium=referral">Unsplash</a>. Weather by <a href="https://open-meteo.com/">Open-Meteo</a>.</p>
+    </section>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>
